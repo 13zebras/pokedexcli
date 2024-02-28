@@ -28,6 +28,10 @@ func startRepl(cfg *config) {
 		}
 
 		commandName := cleanedText[0]
+		args := []string{}
+		if len(cleanedText) > 1 {
+			args = cleanedText[1:]
+		}
 
 		commandList := createCommandList()
 
@@ -37,7 +41,7 @@ func startRepl(cfg *config) {
 			continue
 		}
 
-		err := command.callback(cfg)
+		err := command.callback(cfg, args...)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 		}
@@ -47,11 +51,21 @@ func startRepl(cfg *config) {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, ...string) error
 }
 
 func createCommandList() map[string]cliCommand {
 	return map[string]cliCommand{
+		"catch": {
+			name:        "catch  {pokemon_name}",
+			description: "Attempt to catch a pokemon and add it to your pokedex",
+			callback:    commandCatch,
+		},
+		"explore": {
+			name:        "explore  {location_area}",
+			description: "Lists the pokemon in a location area",
+			callback:    commandExplore,
+		},
 		"help": {
 			name:        "help",
 			description: "Displays a help message",
