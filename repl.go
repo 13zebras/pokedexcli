@@ -43,7 +43,7 @@ func startRepl(cfg *config) {
 
 		err := command.callback(cfg, args...)
 		if err != nil {
-			fmt.Printf("Error: %v\n", err)
+			fmt.Printf("%v\n", err)
 		}
 	}
 }
@@ -61,6 +61,11 @@ func createCommandList() map[string]cliCommand {
 			description: "Attempt to catch a pokemon and add it to your pokedex",
 			callback:    commandCatch,
 		},
+		"exit": {
+			name:        "exit",
+			description: "Exit the Pokedex",
+			callback:    commandExit,
+		},
 		"explore": {
 			name:        "explore  {location_area}",
 			description: "Lists the pokemon in a location area",
@@ -70,6 +75,11 @@ func createCommandList() map[string]cliCommand {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
+		},
+		"inspect": {
+			name:        "catch  {pokemon_name}",
+			description: "View information about a caught pokemon",
+			callback:    commandInspect,
 		},
 		"map": {
 			name:        "map",
@@ -81,10 +91,10 @@ func createCommandList() map[string]cliCommand {
 			description: "Previous page location areas",
 			callback:    commandMapBack,
 		},
-		"exit": {
-			name:        "exit",
-			description: "Exit the Pokedex",
-			callback:    commandExit,
+		"pokedex": {
+			name:        "pokedex",
+			description: "View all the pokemon in your pokedex",
+			callback:    commandPokedex,
 		},
 	}
 }

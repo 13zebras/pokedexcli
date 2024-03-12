@@ -23,6 +23,7 @@ func commandCatch(cfg *config, args ...string) error {
 
 	// threshold is arbitrary number below which
 	// we "catch" a pokemon
+
 	const threshold = 50
 	randomNumber := rand.Intn(pokemon.BaseExperience)
 	fmt.Println(pokemon.BaseExperience, randomNumber, threshold)
@@ -31,8 +32,9 @@ func commandCatch(cfg *config, args ...string) error {
 		return nil
 	}
 
-	fmt.Printf("%s pokemon was caught!\n\n", pokemonName)
+	cfg.caughtPokemon[pokemonName] = pokemon
 
+	fmt.Printf("%s pokemon was caught!\n\n", pokemonName)
 	return nil
 }
 
@@ -55,7 +57,7 @@ func commandExplore(cfg *config, args ...string) error {
 	fmt.Printf("Pokemon in %s:\n", locationArea.Name)
 
 	for _, pokemon := range locationArea.PokemonEncounters {
-		fmt.Printf(" - %s\n", pokemon.Pokemon.Name)
+		fmt.Printf("  - %s\n", pokemon.Pokemon.Name)
 	}
 	fmt.Printf("\n")
 
@@ -68,10 +70,36 @@ func commandHelp(cfg *config, args ...string) error {
 
 	commandList := createCommandList()
 	for _, command := range commandList {
-		fmt.Printf(" - %s: %s\n", command.name, command.description)
+		fmt.Printf("  - %s: %s\n", command.name, command.description)
 	}
 	fmt.Printf("\n")
 
+	return nil
+}
+
+func commandInspect(cfg *config, args ...string) error {
+	if len(args) != 1 {
+		return errors.New("no pokemon name provided")
+	}
+	pokemonName := args[0]
+
+	pokemon, ok := cfg.caughtPokemon[pokemonName]
+	if !ok {
+		return errors.New("you haven't caught this pokemon yet")
+	}
+
+	fmt.Printf("Name: %s\n", pokemon.Name)
+	fmt.Printf("Height: %v\n", pokemon.Height)
+	fmt.Printf("Weight: %v\n", pokemon.Weight)
+	fmt.Println("Stats:")
+	for _, stat := range pokemon.Stats {
+		fmt.Printf("  - %s: %v\n", stat.Stat.Name, stat.BaseStat)
+	}
+	fmt.Println("Types:")
+	for _, typ := range pokemon.Types {
+		fmt.Printf("  - %s\n", typ.Type.Name)
+	}
+	fmt.Printf("\n")
 	return nil
 }
 
@@ -84,7 +112,7 @@ func commandMap(cfg *config, args ...string) error {
 	fmt.Printf("\nLocation Areas:\n")
 
 	for _, area := range res.Results {
-		fmt.Printf(" - %s\n", area.Name)
+		fmt.Printf("  - %s\n", area.Name)
 	}
 	fmt.Printf("\n")
 
@@ -106,11 +134,29 @@ func commandMapBack(cfg *config, args ...string) error {
 	fmt.Printf("\nLocation Areas:\n")
 
 	for _, area := range res.Results {
-		fmt.Printf(" - %s\n", area.Name)
+		fmt.Printf("  - %s\n", area.Name)
 	}
 	fmt.Printf("\n")
 
 	cfg.nextLocationAreaURL = res.Next
 	cfg.previousLocationAreaURL = res.Previous
+	return nil
+}
+
+func commandPokedex(cfg *config, args ...string) error {
+	fmt.Println("Pokemon in Pokedex:")
+	for _, pokemon := range cfg.caughtPokemon {
+		fmt.Printf("  %s\n", pokemon.Name)
+		fmt.Println("    stats:")
+		for _, stat := range pokemon.Stats {
+			fmt.Printf("      - %s: %v\n", stat.Stat.Name, stat.BaseStat)
+		}
+		fmt.Println("    types:")
+		for _, typ := range pokemon.Types {
+			fmt.Printf("      - %s\n", typ.Type.Name)
+		}
+	}
+	fmt.Printf("\n")
+
 	return nil
 }
